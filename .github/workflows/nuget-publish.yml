@@ -1,0 +1,42 @@
+name: Build and Publish to NuGet.org
+
+on:
+  push:
+    branches: [ master ]
+    tags: [ 'v*' ] 
+
+jobs:
+  build-and-publish:
+    runs-on: windows-latest
+
+    env:
+      CONFIGURATION: Release
+      DOTNET_NOLOGO: true
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build project
+        run: dotnet build --configuration ${{ env.CONFIGURATION }} --no-restore
+
+      - name: Pack NuGet (with symbols and source)
+        run: |
+          VERSION=${GITHUB_REF##*/} # e.g. v1.2.3
+          VERSION=${VERSION#v}      # strip 'v'
+          dotnet pack **/*.csproj \
+            --configuration ${{ env.CONFIGURATION }} \
+            --output ./nupkgs \
+            --include-symbols --include-source \
+            /p:PackageVersion=$VERSION
+
+      - name: Push to NuGet.org
+        run: dotnet nuget push ./nupkgs/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }}
