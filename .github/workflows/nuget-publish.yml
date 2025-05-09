@@ -27,17 +27,17 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore ./WiSave.Shared.OpenTelemetry/WiSave.Shared.OpenTelemetry.csproj
 
       - name: Build project
-        run: dotnet build --configuration $CONFIGURATION --no-restore
+        run: dotnet build ./WiSave.Shared.OpenTelemetry/WiSave.Shared.OpenTelemetry.csproj --configuration $CONFIGURATION --no-restore
 
       - name: Set version number
         run: echo "VERSION=1.0.${{ github.run_number }}" >> $GITHUB_ENV
 
       - name: Pack NuGet package
         run: |
-          dotnet pack **/*.csproj \
+          dotnet pack ./WiSave.Shared.OpenTelemetry/WiSave.Shared.OpenTelemetry.csproj \
             --configuration $CONFIGURATION \
             --output ./nupkgs \
             --include-symbols --include-source \
