@@ -2,6 +2,7 @@ name: Build and Publish to NuGet.org
 
 on:
   push:
+    branches: [ master ]
     tags:
       - 'v*'
 
