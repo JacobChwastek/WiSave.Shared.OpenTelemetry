@@ -2,10 +2,9 @@ name: Build and Publish to NuGet.org
 
 on:
   push:
-    branches: [ master ]
-    tags:
-      - 'v*'
-
+    branches:
+      - master
+      - 
 permissions:
   contents: write
   packages: write
@@ -25,7 +24,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '9.0.x'
+          dotnet-version: '8.0.x'
 
       - name: Restore dependencies
         run: dotnet restore
@@ -33,10 +32,11 @@ jobs:
       - name: Build project
         run: dotnet build --configuration $CONFIGURATION --no-restore
 
-      - name: Pack NuGet (with symbols and source)
+      - name: Set version number
+        run: echo "VERSION=1.0.${{ github.run_number }}" >> $GITHUB_ENV
+
+      - name: Pack NuGet package
         run: |
-          VERSION=${GITHUB_REF##*/}
-          VERSION=${VERSION#v}
           dotnet pack **/*.csproj \
             --configuration $CONFIGURATION \
             --output ./nupkgs \
